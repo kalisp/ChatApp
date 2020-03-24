@@ -24,6 +24,13 @@ class Room(Model):
     created_dt = UTCDateTimeAttribute()
     last_updated_dt = UTCDateTimeAttribute()
 
+    @classmethod
+    def get_by_id(cls, id):
+        ''' Return by id - primary keys, throws KeyError if not found
+            Query returns ResultIterator
+        '''
+        return next(cls.query(id))
+
     def set_read_only(self, read_only):
         ''' Set room to read only, eg. archived '''
         self.read_only = read_only
@@ -49,6 +56,8 @@ class Room(Model):
         ])
 
     def number_of_users(self):
+        if not self.joined_users:
+            return 0
         return len(self.joined_users)
 
     def __repr__(self):

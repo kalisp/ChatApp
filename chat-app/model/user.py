@@ -26,6 +26,11 @@ class User(Model):
     created_dt = UTCDateTimeAttribute()
     last_updated_dt = UTCDateTimeAttribute()
 
+    @classmethod
+    def get_by_id(cls, id):
+        ''' Return by id - primary keys, throws KeyError if not found'''
+        return next(cls.query(id))
+
     def set_active(self, state):
         self.active = not state
         self.update(actions=[
