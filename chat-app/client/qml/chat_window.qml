@@ -10,6 +10,7 @@ ApplicationWindow {
     //visibility: Window.FullScreen
     width: Screen.width
     height: Screen.height - 100
+    flags: Qt.FramelessWindowHint
 
     color: 'darkgrey'
 
@@ -49,13 +50,11 @@ ApplicationWindow {
                     MouseArea {
                             anchors.fill: parent
                             onClicked: {
-                                console.log("Click!" + model.id_role)
-                                //model.get_rooms()
+                                console.log("Change room to: " + model.id_role)
+                                post_model.change_room(model.id_role)
                             }
                         }
                 }
-
-
             }
         }
 
@@ -114,6 +113,15 @@ ApplicationWindow {
                         Layout.rightMargin: 10
                         text: qsTr("Send")
                         enabled: messageField.length > 0
+
+                        MouseArea {
+                            anchors.fill: parent
+                            onClicked: {
+                                console.log("Send message")
+                                post_model.send_post('1bf48208-69f5-11ea-a502-28e347aeb22f', messageField.text)
+                                messageField.text = ''
+                            }
+                        }
                     }
                 }
             }
