@@ -5,23 +5,9 @@ from PySide2.QtQuick import QQuickView
 from PySide2.QtCore import QStringListModel, Qt, QUrl, QAbstractListModel, Slot, QObject
 from PySide2.QtGui import QGuiApplication
 import requests
+from datetime import datetime
 
-from model import  RoomModel as rm, PostModel as pm
-
-
-class Auth(QObject):
-    def __init__(self):
-        pass
-
-    @classmethod
-    @Slot(str, str)
-    def login(self, user_name, password):
-        print('{}{}'.format(user_name, password)
-
-    @classmethod
-    @Slot(str, str, str)
-    def register(self, user_name, password, confirm_password):
-        print('{}{}{}'.format(user_name, password, confirm_password)
+from model import  RoomModel as rm, PostModel as pm, UserModel as u
 
 if __name__ == "__main__":
     app = QGuiApplication([])
@@ -32,8 +18,8 @@ if __name__ == "__main__":
 #    room_model._data.extend([['id_room2', 'room2'], ['id_room3', 'room3']])
     posts_model = pm.PostModel()
 
-    auth = Auth()
-    engine.rootContext().setContextProperty("auth",auth)
+    user = u.User()
+    engine.rootContext().setContextProperty("user", user)
 
     engine.rootContext().setContextProperty("room_model",room_model)
     engine.rootContext().setContextProperty("post_model",posts_model)
