@@ -1,4 +1,4 @@
-from chalice import Chalice, BadRequestError
+from chalice import Chalice, BadRequestError, UnauthorizedError
 
 from model import user, room, post
 import uuid
@@ -24,6 +24,8 @@ def rooms():
     for r in room.Room.scan():
         rooms.append((r.id, r.name))
 
+    rooms = sorted(rooms, key = lambda i: i[1])
+
     return json.dumps(rooms)
 
 @app.route('/room/create', methods=['GET', 'POST'])
@@ -32,7 +34,7 @@ def create_room():
     app.log.debug("create_room")
     new_room = room.Room(
         id = str(uuid.uuid1()),
-        name = "Room1",
+        name = "Room2",
         read_only = False,
         created_dt = datetime.utcnow(),
         last_updated_dt = datetime.utcnow()
@@ -108,25 +110,48 @@ def users():
 
     return json.dumps(names)
 
+@app.route('/user/login', methods=['POST'])
+def login_user():
+    app.log.debug("login")
+    body = app.current_request.json_body
+    app.log.debug("body {}".format(body))
+    for u in user.User.scan():
+        if u.user_name == body['user_name']:
+            print('exist pass{} send pass {}'.format(u.password, hashlib.sha3_512(body['password'].encode('utf-8'))))
+            if hashlib.sha3_512(body['password'].encode('utf-8')).hexdigest() == u.password:
+                u.set_last_accessed_dt()
+                app.log.debug(u.id)
+                return {'200' : u.id}
+            else:
+                raise UnauthorizedError('Wrong password')
+
+    raise BadRequestError('User with id: {} not found'.format(id))
+
 @app.route('/user/create', methods=['GET', 'POST'])
 def create_user():
     ''' Create new user '''
     app.log.debug("create_user")
+    body = app.current_request.json_body
+    app.log.debug(body)
+    passw = hashlib.sha3_512(body['password'].encode('utf-8')).hexdigest()
     new_user = user.User(
         id = str(uuid.uuid1()),
-        first_name = "John",
-        last_name = "Doe",
-        nick = "johndoe",
-        email = "john@doe.com",
-        password = hashlib.sha3_512("John"),
+        user_name = body['user_name'],
+        first_name = body['first_name'],
+        last_name = body['last_name'],
+        nick = body['nick'],
+        email = body['email'],
+        password = passw,
         active = 1,
         rooms = [],
         created_dt = datetime.utcnow(),
-        last_updated_dt = datetime.utcnow()
+        last_updated_dt = datetime.utcnow(),
+        last_accessed_dt = datetime.utcnow(),
     )
     new_user.save()
+    print(new_user.id)
 
-    return {'200': "User created"}
+    return {'200': new_user.id}
 
 @app.route('/user/join_room/room_id/{room_id}/user_id/{user_id}', methods=['GET', 'POST'])
 def join_room(room_id, user_id): # not sure if needed/wanted
@@ -192,17 +217,20 @@ def num_of_rooms(id):
 # ----------POSTS--------------------
 @app.route('/posts/room_id/{room_id}')
 def posts(room_id):
-    ''' Return all posts for specific room '''
-    # TODO add limit, order by created desc
+    ''' Return all posts for specific room in json string, sorted by created_dt_timestamp desc '''
+    # TODO add limit
     app.log.debug("posts")
     try:
-        r = room.Room.get_by_id(id=id)
-        room_posts  = post.Post(room_id=r.id).scan()
+        r = room.Room.get_by_id(id=room_id)
+        app.log.debug("room_id {}".format(room_id))
+        room_posts  = post.Post.query(r.id)
         response = []
-        print(room_posts)
         for p in room_posts:
-            print(p)
-            response.append(p)
+            response.append(p.to_dict())
+        response = sorted(response,
+                          key = lambda i: i['created_dt_timestamp'],
+                          reverse=True)
+
         return json.dumps(response)
     except KeyError:
         raise BadRequestError('5 Room with id: {} not found'.format(id))
@@ -229,7 +257,6 @@ def add_post():
 
         return {'200': new_post.id}
     except KeyError:
-        print('keyerror')
         raise BadRequestError('6 Room with id: {} not found'.format(body['room_id']))
 
 @app.route('/post/id/{post_id}/{type}/user_id/{user_id}')
@@ -256,10 +283,16 @@ if __name__ == '__main__':
     #create_room()
     #print(rooms())
 
-    #posts("9fc0dd64-6a04-11ea-b2d4-28e347aeb22f")
+    # p = posts("9fc0dd64-6a04-11ea-b2d4-28e347aeb22f")
+    # print(p)
+    # print(type(p))
+    #
+    # print("huuu")
 
-    r = requests.post('http://127.0.0.1:8089/add_post', json={"user_id":"1bf48208-69f5-11ea-a502-28e347aeb22f",
-                                                              "room_id":"9fc0dd64-6a04-11ea-b2d4-28e347aeb22f",
-                                                              "content":"HelloWorld"})
-    print(r.status_code)
-    print(r.json())
+    # r = requests.post('http://127.0.0.1:8089/add_post', json={"user_id":"1bf48208-69f5-11ea-a502-28e347aeb22f",
+    #                                                           "room_id":"9fc0dd64-6a04-11ea-b2d4-28e347aeb22f",
+    #                                                           "content":"HelloWorld"})
+    # print(r.status_code)
+    # print(r.json())
+
+    pass
