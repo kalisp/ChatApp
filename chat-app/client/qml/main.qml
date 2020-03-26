@@ -36,7 +36,7 @@ ApplicationWindow {
         id: popup
         property alias popMessage: message.text
         background: Rectangle {
-            implicitWidth: window.width
+            implicitWidth: window.width - 200
             implicitHeight: 60
             color: "#b44"
         }
@@ -52,13 +52,14 @@ ApplicationWindow {
             font.pointSize: 12
             color: "#ffffff"
         }
+
         onOpened: popupClose.start()
     }
 
     // Popup will be closed automatically in 2 seconds after its opened
     Timer {
         id: popupClose
-        interval: 1000
+        interval: 5000
         onTriggered: popup.close()
     }
 }

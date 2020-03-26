@@ -29,8 +29,8 @@ Page {
         anchors.topMargin: 30
         spacing: 25
 
-        TextField {
-            id: registerUsername
+        TextField {  // TODO create generic component
+            id: user_name
             placeholderText: qsTr("User name")
             Layout.preferredWidth: parent.width - 20
             Layout.alignment: Qt.AlignHCenter
@@ -65,7 +65,147 @@ Page {
         }
 
         TextField {
-            id: registerPassword
+            id: first_name
+            placeholderText: qsTr("First name")
+            Layout.preferredWidth: parent.width - 20
+            Layout.alignment: Qt.AlignHCenter
+            color: mainTextCOlor
+            font.pointSize: 14
+            font.family: "fontawesome"
+            leftPadding: 30
+            background: Rectangle {
+                implicitWidth: 200
+                implicitHeight: 50
+                radius: implicitHeight / 2
+                color: "transparent"
+
+                Text {
+                    text: "\uf007"
+                    font.pointSize: 14
+                    font.family: "fontawesome"
+                    color: mainAppColor
+                    anchors.left: parent.left
+                    anchors.verticalCenter: parent.verticalCenter
+                    leftPadding: 10
+                }
+
+                Rectangle {
+                    width: parent.width - 10
+                    height: 1
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    anchors.bottom: parent.bottom
+                    color: mainAppColor
+                }
+            }
+        }
+
+        TextField {
+            id: last_name
+            placeholderText: qsTr("Last name")
+            Layout.preferredWidth: parent.width - 20
+            Layout.alignment: Qt.AlignHCenter
+            color: mainTextCOlor
+            font.pointSize: 14
+            font.family: "fontawesome"
+            leftPadding: 30
+            background: Rectangle {
+                implicitWidth: 200
+                implicitHeight: 50
+                radius: implicitHeight / 2
+                color: "transparent"
+
+                Text {
+                    text: "\uf007"
+                    font.pointSize: 14
+                    font.family: "fontawesome"
+                    color: mainAppColor
+                    anchors.left: parent.left
+                    anchors.verticalCenter: parent.verticalCenter
+                    leftPadding: 10
+                }
+
+                Rectangle {
+                    width: parent.width - 10
+                    height: 1
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    anchors.bottom: parent.bottom
+                    color: mainAppColor
+                }
+            }
+        }
+
+        TextField {
+            id: nick
+            placeholderText: qsTr("Nick")
+            Layout.preferredWidth: parent.width - 20
+            Layout.alignment: Qt.AlignHCenter
+            color: mainTextCOlor
+            font.pointSize: 14
+            font.family: "fontawesome"
+            leftPadding: 30
+            background: Rectangle {
+                implicitWidth: 200
+                implicitHeight: 50
+                radius: implicitHeight / 2
+                color: "transparent"
+
+                Text {
+                    text: "\uf007"
+                    font.pointSize: 14
+                    font.family: "fontawesome"
+                    color: mainAppColor
+                    anchors.left: parent.left
+                    anchors.verticalCenter: parent.verticalCenter
+                    leftPadding: 10
+                }
+
+                Rectangle {
+                    width: parent.width - 10
+                    height: 1
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    anchors.bottom: parent.bottom
+                    color: mainAppColor
+                }
+            }
+        }
+
+        TextField {
+            id: email
+            placeholderText: qsTr("Email")
+            Layout.preferredWidth: parent.width - 20
+            Layout.alignment: Qt.AlignHCenter
+            color: mainTextCOlor
+            font.pointSize: 14
+            font.family: "fontawesome"
+            leftPadding: 30
+            background: Rectangle {
+                implicitWidth: 200
+                implicitHeight: 50
+                radius: implicitHeight / 2
+                color: "transparent"
+
+                Text {
+                    text: "\uf007"
+                    font.pointSize: 14
+                    font.family: "fontawesome"
+                    color: mainAppColor
+                    anchors.left: parent.left
+                    anchors.verticalCenter: parent.verticalCenter
+                    leftPadding: 10
+                }
+
+                Rectangle {
+                    width: parent.width - 10
+                    height: 1
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    anchors.bottom: parent.bottom
+                    color: mainAppColor
+                }
+            }
+        }
+
+        TextField {
+            id: password
             placeholderText: qsTr("Password")
             Layout.preferredWidth: parent.width - 20
             Layout.alignment: Qt.AlignHCenter
@@ -100,7 +240,7 @@ Page {
         }
 
         TextField {
-            id: registerPassword2
+            id: password2
             placeholderText: qsTr("Confirm Password")
             Layout.preferredWidth: parent.width - 20
             Layout.alignment: Qt.AlignHCenter
@@ -134,41 +274,6 @@ Page {
             }
         }
 
-        TextField {
-            id: passwordHint
-            placeholderText: qsTr("Password Hint")
-            Layout.preferredWidth: parent.width - 20
-            Layout.alignment: Qt.AlignHCenter
-            color: mainTextCOlor
-            font.pointSize: 14
-            font.family: "fontawesome"
-            leftPadding: 30
-            background: Rectangle {
-                implicitWidth: 200
-                implicitHeight: 50
-                radius: implicitHeight / 2
-                color: "transparent"
-                Text {
-                    text: "\uf05a"
-                    font.pointSize: 13
-                    font.bold: true
-                    font.family: "fontawesome"
-                    color: mainAppColor
-                    anchors.left: parent.left
-                    anchors.verticalCenter: parent.verticalCenter
-                    leftPadding: 10
-                }
-
-                Rectangle {
-                    width: parent.width - 10
-                    height: 1
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    anchors.bottom: parent.bottom
-                    color: mainAppColor
-                }
-            }
-        }
-
         Item {
             height: 20
         }
@@ -180,7 +285,17 @@ Page {
             text: "Sign Up"
 //            baseColor: mainAppColor
 //            borderColor: mainAppColor
-            onClicked: registerNewUser(registerUsername.text, registerPassword.text, registerPassword2.text, passwordHint.text)
+            onClicked: {
+                var ret = user.register(user_name.text, first_name.text, last_name.text, nick.text, email.text, password.text, password2.text)
+                var arr = ret.split(',')
+                if (arr[0] === 'True'){
+                    stackView.replace("chat_window.qml")
+                }else{
+                    popup.popMessage = arr[1]
+                    popup.open()
+                    return
+                }
+            }
         }
 
         RoundButton{

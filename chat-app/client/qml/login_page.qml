@@ -116,7 +116,16 @@ Page {
             //color: mainAppColor
             //border.color: mainAppColor
             onClicked: {
-                loginUser(loginUsername.text, loginPassword.text)
+                var ret = user.login(loginUsername.text, loginPassword.text)
+                var arr = ret.split(',')
+                console.log(arr[1])
+                if (arr[0] === 'True'){
+                    stackView.replace("chat_window.qml")
+                }else{
+                    popup.popMessage = "arr[1]"
+                    popup.open()
+                    return
+                }
             }
         }
 
