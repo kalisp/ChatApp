@@ -16,6 +16,7 @@ class User(Model):
         host = Config.DYNAMODB_HOST
 
     id = UnicodeAttribute(hash_key=True)
+    user_name = UnicodeAttribute()
     first_name = UnicodeAttribute(null=True)
     last_name = UnicodeAttribute(null=True)
     nick = UnicodeAttribute(null=True)
@@ -25,11 +26,18 @@ class User(Model):
     active = BooleanAttribute(default=True)
     created_dt = UTCDateTimeAttribute()
     last_updated_dt = UTCDateTimeAttribute()
+    last_accessed_dt = UTCDateTimeAttribute()
 
     @classmethod
     def get_by_id(cls, id):
         ''' Return by id - primary keys, throws KeyError if not found'''
         return next(cls.query(id))
+
+    def set_last_accessed_dt(self):
+        ''' Mark when user logged in '''
+        self.update(actions=[
+            User.last_accessed_dt.set(datetime.now())
+        ])
 
     def set_active(self, state):
         self.active = not state
@@ -39,7 +47,7 @@ class User(Model):
         ])
 
     def set_password(self, password):
-        self.password = hashlib.sha3_512(password)
+        self.password = hashlib.sha3_512(password.encode('utf-8')).hexdigest()
         self.update(actions=[
             User.password.set(self.password),
             User.last_updated_dt.set(datetime.now()),

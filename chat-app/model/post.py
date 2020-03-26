@@ -15,13 +15,13 @@ class Post(Model):
         # Optional: Specify the hostname only if it needs to be changed from the default AWS setting
         host = Config.DYNAMODB_HOST
 
-    id = UnicodeAttribute(hash_key=True)
+    id = UnicodeAttribute() # not used as PK,will probably need index for liked_by/disliked_by
     user_id = UnicodeAttribute()
-    room_id = UnicodeAttribute()
+    room_id = UnicodeAttribute(hash_key=True)
     content = UnicodeAttribute()
     liked_by = UnicodeSetAttribute(null=True)
     disliked_by = UnicodeSetAttribute(null=True)
-    created_dt = UTCDateTimeAttribute()
+    created_dt = UTCDateTimeAttribute(range_key=True)
     last_updated_dt = UTCDateTimeAttribute()
 
     def like(self, user_id, liked):
@@ -42,6 +42,22 @@ class Post(Model):
             action, # ??
             Post.last_updated_dt.set(datetime.now()),
         ])
+
+    def to_dict(self):
+        return {
+                'id' : self.id,
+                'user_id' : self.user_id,
+                'room_id' : self.room_id,
+                'content' : self.content,
+                'liked_by': ','.join(self.liked_by or []),
+                'disliked_by':','.join(self.disliked_by or []),
+                'created_dt' : self.created_dt.isoformat(),
+                'created_dt_timestamp' : self.created_dt.timestamp()
+        }
+
+    def __repr__(self):
+        return 'Post: id:{}, room_id:{}, user_id:{}, created_dt:{}'.format(self.id, self.room_id, self.user_id,
+                                                                             self.created_dt)
 
 
 
