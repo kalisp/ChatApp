@@ -17,10 +17,11 @@ class PostModel(QAbstractListModel):
               content_role: b'content',
               Qt.DisplayRole : b'display'} # b is important because of PYSIDE-703
 
-    def __init__(self, room_id = '9fc0dd64-6a04-11ea-b2d4-28e347aeb22f'):
+    def __init__(self, room_id = None):
                 QAbstractListModel.__init__(self)
                 self.room_id = room_id
-                self.refresh_posts(self.room_id)
+                if self.room_id:
+                    self.refresh_posts(self.room_id)
 
     def rowCount(self, parent):
         return len(self._data)
